@@ -1,18 +1,59 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
-defineProps({
+const props = defineProps({
   data: {
     type: Array,
     required: true
+  },
+  height: {
+    type: [String, Number],
+    default: '100%'
+  },
+  width: {
+    type: [String, Number],
+    default: '100%'
   }
 })
 
-const alpha = Array.from(Array(26)).map((_, i) => i + 65)
+const sheetHeight = computed(() => {
+  const units = ['px', 'em', 'rem', '%', 'vw', 'vh']
+  const { height } = props
+
+  const hasUnit = units.some((val) => height.toString().includes(val))
+
+  return hasUnit ? height : `${height}px`
+})
+
+const sheetWidth = computed(() => {
+  const units = ['px', 'em', 'rem', '%', 'vw', 'vh']
+  const { width } = props
+
+  const hasUnit = units.some((val) => width.toString().includes(val))
+
+  return hasUnit ? width : `${width}px`
+})
+
+const alpha = Array(26)
+  .fill(null)
+  .map((_, i) => i + 65)
 const alphabet = alpha.map((x) => String.fromCharCode(x))
 
-const columnsArr = ref(alphabet)
-// const rowsArr = ref(alphabet)
+const dataMaxCol = props.data.reduce((acc, { length }) => (acc = length > acc ? length : acc), 0)
+const colSize = Math.min(Math.max(dataMaxCol, 26), 702) // max 702 = "ZZ"
+
+const alphabetCols = Array(colSize)
+  .fill(null)
+  .reduce((acc, _, idx) => {
+    const group = Math.floor(idx / alphabet.length)
+
+    const letter = alphabet[idx] ?? alphabet[group - 1] + alphabet[idx - group * alphabet.length]
+
+    return (acc = [...acc, letter])
+  }, [])
+
+const columnsArr = ref(alphabetCols)
+const rowsArr = ref(Math.max(props.data.length, 100))
 const allFocused = ref(false)
 const allowResize = ref(false)
 
@@ -49,6 +90,7 @@ const resizeColumn = (className) => {
 
   let finalWidth
 
+  const rootElem = document.querySelector('.spreadsheet_content')
   const columnElem = document.querySelector(className)
   const columnLine = document.querySelector('.column_line')
   const columnCells = document.querySelectorAll(className)
@@ -60,7 +102,9 @@ const resizeColumn = (className) => {
       finalWidth = e.clientX - left
 
       columnLine.style.opacity = '1'
-      columnLine.style.left = `${e.clientX}px`
+      columnLine.style.left = `${
+        e.clientX + rootElem.scrollLeft - rootElem.getBoundingClientRect().left
+      }px`
     }
   }
 
@@ -79,6 +123,7 @@ const resizeRow = (className) => {
 
   let finalHeight
 
+  const rootElem = document.querySelector('.spreadsheet_content')
   const rowElem = document.querySelector(className)
   const rowLine = document.querySelector('.row_line')
   const rowCells = document.querySelectorAll(className)
@@ -90,7 +135,9 @@ const resizeRow = (className) => {
       finalHeight = e.clientY - top
 
       rowLine.style.opacity = '1'
-      rowLine.style.top = `${e.clientY}px`
+      rowLine.style.top = `${
+        e.clientY + rootElem.scrollTop - rootElem.getBoundingClientRect().top
+      }px`
     }
   }
 
@@ -106,7 +153,11 @@ const resizeRow = (className) => {
 </script>
 
 <template>
-  <div class="spreadsheet_content" style="--cell-width: 65px; --cell-height: 25px">
+  <div
+    class="spreadsheet_content"
+    style="--cell-width: 65px; --cell-height: 25px"
+    :style="`height: ${sheetHeight}; width: ${sheetWidth}`"
+  >
     <div class="corner" @click="focusAll"></div>
 
     <div class="columns">
@@ -126,7 +177,7 @@ const resizeRow = (className) => {
     <div class="rows">
       <div
         class="row spreadsheet_elem"
-        v-for="(row, idx) in data"
+        v-for="(row, idx) in rowsArr"
         :class="`row${idx}-height`"
         :key="row"
         @click="focusLine(`.row${idx}-height`)"
@@ -138,10 +189,10 @@ const resizeRow = (className) => {
     </div>
 
     <div class="cells" @click="blurLines">
-      <div class="cell_row" v-for="(cellRow, rowIdx) in data" :key="cellRow">
+      <div class="cell_row" v-for="(cellRow, rowIdx) in rowsArr" :key="cellRow">
         <div
           class="cell spreadsheet_elem"
-          v-for="(cell, columnIdx) in cellRow"
+          v-for="(cell, columnIdx) in columnsArr"
           :class="[`row${rowIdx}-height`, `column${columnIdx}-width`]"
           :style="``"
           :key="cell"
@@ -151,7 +202,7 @@ const resizeRow = (className) => {
           @keydown.enter.prevent
           @keyup.enter="blurCell"
         >
-          {{ cell }}
+          {{ data[rowIdx]?.[columnIdx] }}
         </div>
       </div>
     </div>
@@ -164,8 +215,7 @@ const resizeRow = (className) => {
 <style scoped>
 .spreadsheet_content {
   position: relative;
-  height: 100vh;
-  overflow: visible;
+  overflow-y: scroll;
   color: #444;
   background: #cdcdcd;
   font-family: 'Noto Sans', sans-serif;

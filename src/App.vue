@@ -1,18 +1,43 @@
 <script setup>
-import SpreadsheetLike from './components/SpreadsheetLike.vue'
+import { data } from './constants'
 
-const data = Array(10)
-  .fill(null)
-  .map((_, row) =>
-    Array(10)
-      .fill(null)
-      .map((_, column) => `${row + 1}, ${String.fromCharCode(column + 65)}`)
-  )
+import VueSheetzComponent from './components/VueSheetzComponent.vue'
 </script>
 
 <template>
   <main>
-    <SpreadsheetLike :data="data" height="90%" width="90%" />
+    <VueSheetzComponent
+      :data="data"
+      height="90%"
+      width="90%"
+      :colSorting="true"
+      :colWidths="[140, 192, 100, 90, 90, 110, 97, 100, 126, 100]"
+      :colHeaders="[
+        'Company name',
+        'Name',
+        'Sell date',
+        'In stock',
+        'Qty',
+        'Progress',
+        'Rating',
+        'Order ID',
+        'Country',
+        'Value'
+      ]"
+      :colsAlignment="[
+        'left',
+        'left',
+        'center',
+        'center',
+        'right',
+        'center',
+        'center',
+        'left',
+        'left',
+        'center'
+      ]"
+      :colsFormat="[,,,'check',,,'rating',,,,]"
+    />
   </main>
 </template>
 

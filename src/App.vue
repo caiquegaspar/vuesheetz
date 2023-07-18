@@ -11,7 +11,7 @@ import VueSheetzComponent from './components/VueSheetzComponent.vue'
       height="90%"
       width="90%"
       :colSorting="true"
-      :colWidths="[140, 192, 100, 90, 90, 110, 97, 100, 126, 100]"
+      :colWidths="[140, 192, 100, 80, 60, 110, 97, 100, 126, 100]"
       :colHeaders="[
         'Company name',
         'Name',
@@ -36,7 +36,22 @@ import VueSheetzComponent from './components/VueSheetzComponent.vue'
         'left',
         'center'
       ]"
-      :colsFormat="[,,,'check',,,'rating',,,,]"
+      :colsFormat="[
+        ,
+        ,
+        '##/##/####',
+        'check',
+        ,
+        'progress',
+        'rating',
+        ,
+        ,
+        (val) =>
+          Number(val).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          })
+      ]"
     />
   </main>
 </template>

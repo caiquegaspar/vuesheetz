@@ -105,6 +105,17 @@ const allowResize = ref(false)
 const sortedCol = ref(null)
 const sortOrder = ref('asc')
 
+const progressColor = (percentage) => {
+  const colors = {
+    33: '#f44336',
+    66: '#1677ff',
+    100: '#4caf50'
+  }
+  const percentageColor = Object.entries(colors).find(([percent]) => percentage <= percent)
+
+  return percentageColor ? percentageColor[1] : ''
+}
+
 const ratingFunc = (stars) =>
   [...Array(5).fill(true), ...Array(5).fill(false)].slice(5 - stars, 10 - stars)
 
@@ -132,7 +143,13 @@ const blurLines = () => (
   document.querySelectorAll('.selectedLine').forEach((el) => el.classList.toggle('selectedLine'))
 )
 
-const focusCell = (e) => (e.target.setAttribute('contenteditable', true), e.target.focus())
+const focusCell = (e) => {
+  e.target.setAttribute('contenteditable', true)
+
+  document.getSelection().collapse(e.target, e.target.childNodes.length)
+
+  e.target.focus()
+}
 
 const blurCell = (e) => e.target.setAttribute('contenteditable', false)
 
@@ -201,6 +218,35 @@ const resizeRow = (idx) => {
 const sortColumn = (idx) => ((sortedCol.value = idx), (sortOrder.value = 'asc'))
 
 const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
+
+const maskString = (val, pattern) => {
+  const valArr = `${val}`.split('')
+  return pattern.replace(/#/g, () => valArr.shift()).replace(/undefined/g, '')
+}
+
+const validateInput = (e, mask = null) => {
+  const value = e.target.getAttribute('value')
+
+  if (e.key === 'Backspace') e.target.setAttribute('value', value.slice(0, -1))
+  else if (mask?.replace(/[^#]/g, '').length <= value.length) e.preventDefault()
+  else if (e.key.length === 1 && e.key !== ' ') e.target.setAttribute('value', value + e.key)
+}
+
+const updateInput = ({ target }, mask) => {
+  const content = target.getAttribute('value')
+  const maskedStr = maskString(content, mask)
+
+  content ? (target.textContent = maskedStr) : (target.innerHTML = `&nbsp;`)
+  queueMicrotask(() => document.getSelection().collapse(target, target.childNodes.length))
+}
+
+const customUpdate = ({ target }, maskFn) => {
+  const content = target.getAttribute('value')
+  const maskedStr = maskFn(content)
+
+  content ? (target.textContent = maskedStr) : (target.innerHTML = `&nbsp;`)
+  queueMicrotask(() => document.getSelection().collapse(target, target.childNodes.length))
+}
 </script>
 
 <template>
@@ -248,7 +294,7 @@ const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
               width="17"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#1976d2"
+              stroke="#1677ff"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -266,7 +312,7 @@ const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
               width="17"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#1976d2"
+              stroke="#1677ff"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -312,7 +358,7 @@ const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
           :key="cell"
           tabindex="-1"
         >
-          <template v-if="colsFormat[columnIdx] === 'text' || !colsFormat[columnIdx]">
+          <template v-if="!colsFormat?.[columnIdx] || colsFormat[columnIdx] === 'text'">
             <div
               class="cell_input"
               :style="[
@@ -323,6 +369,7 @@ const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
               @blur="blurCell"
               @keydown.enter.prevent
               @keyup.enter="blurCell"
+              @input="({ target }) => (!target.innerHTML ? (target.innerHTML = `&nbsp;`) : '')"
             >
               {{ filteredData[rowIdx]?.[columnIdx] }}
             </div>
@@ -336,6 +383,23 @@ const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
             />
           </template>
 
+          <template v-else-if="colsFormat[columnIdx] === 'progress'">
+            <svg width="90%" height="12">
+              <title>{{ filteredData[rowIdx]?.[columnIdx] }}%</title>
+
+              <rect width="100%" height="100%" x="0" y="0" rx="6" ry="6" fill="#EDEDED" />
+              <rect
+                :width="`${filteredData[rowIdx]?.[columnIdx]}%`"
+                height="100%"
+                x="0"
+                y="0"
+                rx="6"
+                ry="6"
+                :fill="progressColor(filteredData[rowIdx]?.[columnIdx])"
+              />
+            </svg>
+          </template>
+
           <template v-else-if="colsFormat[columnIdx] === 'rating'">
             <svg
               v-for="(star, idx) in ratingFunc(filteredData[rowIdx]?.[columnIdx])"
@@ -344,7 +408,6 @@ const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
               viewBox="0 0 24 24"
             >
               <path
-                v-if="star"
                 d="M9.15316 5.40838C10.4198 3.13613 11.0531 2 12 2C12.9469 2 13.5802 3.13612
                   14.8468 5.40837L15.1745 5.99623C15.5345 6.64193 15.7144 6.96479 15.9951
                   7.17781C16.2757 7.39083 16.6251 7.4699 17.3241 7.62805L17.9605 7.77203C20.4201
@@ -360,31 +423,50 @@ const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
                   8.60682 3.57986 8.32856 6.03954 7.77203L6.67589 7.62805C7.37485 7.4699 7.72433
                   7.39083 8.00494 7.17781C8.28555 6.96479 8.46553 6.64194 8.82547 5.99623L9.15316
                   5.40838Z"
-                fill="#ffeb3b"
-                stroke="#ffeb3b"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-
-              <path
-                v-else
-                d="M6.03954 7.77203C3.57986 8.32856 2.35002 8.60682 2.05742 9.54773C1.76482 10.4886
-                  2.60325 11.4691 4.2801 13.4299L4.71392 13.9372C5.19043 14.4944 5.42868 14.773
-                  5.53586 15.1177C5.64305 15.4624 5.60703 15.8341 5.53498 16.5776L5.4694
-                  17.2544C5.21588 19.8706 5.08912 21.1787 5.85515 21.7602C6.62118 22.3417 7.77268
-                  21.8115 10.0757 20.7512L10.6715 20.4768C11.3259 20.1755 11.6531 20.0248 12
-                  20.0248C12.3469 20.0248 12.6741 20.1755 13.3285 20.4768L13.9243 20.7512C16.2273
-                  21.8115 17.3788 22.3417 18.1449 21.7602C18.9109 21.1787 18.7841 19.8706 18.5306
-                  17.2544M19.7199 13.4299C21.3968 11.4691 22.2352 10.4886 21.9426 9.54773C21.65
-                  8.60682 20.4201 8.32856 17.9605 7.77203L17.3241 7.62805C16.6251 7.4699 16.2757
-                  7.39083 15.9951 7.17781C15.7144 6.96479 15.5345 6.64193 15.1745 5.99623L14.8468
-                  5.40837C13.5802 3.13612 12.9469 2 12 2C11.0531 2 10.4198 3.13613 9.15316 5.40838"
-                fill="none"
-                stroke="#000"
+                :fill="star ? '#ffeb3b' : 'none'"
+                :stroke="star ? '#ffeb3b' : '#000'"
                 stroke-width="2"
                 stroke-linecap="round"
               />
             </svg>
+          </template>
+
+          <template v-else-if="colsFormat[columnIdx].includes?.('#')">
+            <div
+              class="cell_input"
+              :style="[
+                `justify-content: var(--column${columnIdx}-x-align, center)`,
+                `align-items: var(--column${columnIdx}-y-align, center)`
+              ]"
+              :value="filteredData[rowIdx]?.[columnIdx]"
+              @dblclick="focusCell"
+              @blur="blurCell"
+              @keydown.enter.prevent
+              @keyup.enter="blurCell"
+              @keydown="(e) => validateInput(e, colsFormat[columnIdx])"
+              @input="(e) => updateInput(e, colsFormat[columnIdx])"
+            >
+              {{ maskString(filteredData[rowIdx]?.[columnIdx], colsFormat[columnIdx]) }}
+            </div>
+          </template>
+
+          <template v-else-if="typeof colsFormat[columnIdx] === 'function'">
+            <div
+              class="cell_input"
+              :style="[
+                `justify-content: var(--column${columnIdx}-x-align, center)`,
+                `align-items: var(--column${columnIdx}-y-align, center)`
+              ]"
+              :value="filteredData[rowIdx]?.[columnIdx]"
+              @dblclick="focusCell"
+              @blur="blurCell"
+              @keydown.enter.prevent
+              @keyup.enter="blurCell"
+              @keydown="validateInput"
+              @input="(e) => customUpdate(e, colsFormat[columnIdx])"
+            >
+              {{ colsFormat[columnIdx](filteredData[rowIdx]?.[columnIdx]) }}
+            </div>
           </template>
         </div>
       </div>
@@ -507,15 +589,14 @@ const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  overflow: hidden;
 }
 
 .row_resizer {
   position: absolute;
-  bottom: -2.5px;
+  bottom: -3.5px;
   z-index: 9999;
   width: 100%;
-  height: 5px;
+  height: 6px;
   background-color: transparent;
   cursor: n-resize;
   transition: all 0.5s;

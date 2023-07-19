@@ -1,6 +1,6 @@
-# .
+# VueSheetz
 
-This template should help get you started developing with Vue 3 in Vite.
+> VueSheetz is a versatile and feature-rich JavaScript library that provides a powerful spreadsheet-like interface for displaying and manipulating tabular data in web applications.
 
 ## Recommended IDE Setup
 

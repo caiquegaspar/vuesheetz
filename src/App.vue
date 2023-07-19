@@ -37,7 +37,7 @@ import VueSheetzComponent from './components/VueSheetzComponent.vue'
         'center'
       ]"
       :colsFormat="[
-        ,
+        'text',
         ,
         '##/##/####',
         'check',

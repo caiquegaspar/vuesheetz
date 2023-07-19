@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
   data: {
@@ -29,20 +29,6 @@ const props = defineProps({
   colsFormat: Array
 })
 
-const filteredData = computed(() => {
-  if (sortedCol.value !== null)
-    return structuredClone(initialData).sort((a, b) => {
-      const sortCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
-      const colNum = sortedCol.value
-      const ascendingOrder = sortOrder.value === 'asc'
-
-      const compareFunc = sortCollator.compare(a[colNum], b[colNum])
-
-      return ascendingOrder ? compareFunc : compareFunc * -1
-    })
-
-  return initialData
-})
 const sheetHeight = computed(() => {
   const units = ['px', 'em', 'rem', '%', 'vw', 'vh']
   const { height } = props
@@ -59,14 +45,6 @@ const sheetWidth = computed(() => {
 
   return hasUnit ? width : `${width}px`
 })
-const columnsWidths = computed(() =>
-  props.colWidths
-    ? props.colWidths.reduce(
-        (acc, obj, idx) => (obj ? (acc += `--column${idx}-width: ${obj}px;`) : acc),
-        ''
-      )
-    : ''
-)
 const columnsAlignment = computed(() => {
   let styles = ''
   const alignVals = { left: 'start', center: 'center', right: 'end' }
@@ -104,6 +82,32 @@ const allFocused = ref(false)
 const allowResize = ref(false)
 const sortedCol = ref(null)
 const sortOrder = ref('asc')
+const columnsWidths = ref('')
+const filteredData = ref(initialData)
+
+const setColumnsWidths = () => {
+  if (props.colWidths)
+    props.colWidths.forEach((item, idx) =>
+      document
+        .querySelector('.spreadsheet_content')
+        .style.setProperty(`--column${idx}-width`, `${item}px`)
+    )
+}
+
+const filterData = () => {
+  if (sortedCol.value !== null)
+    return (filteredData.value = structuredClone(initialData).sort((a, b) => {
+      const sortCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+      const colNum = sortedCol.value
+      const ascendingOrder = sortOrder.value === 'asc'
+
+      const compareFunc = sortCollator.compare(a[colNum], b[colNum])
+
+      return ascendingOrder ? compareFunc : compareFunc * -1
+    }))
+
+  return (filteredData.value = initialData)
+}
 
 const progressColor = (percentage) => {
   const colors = {
@@ -131,17 +135,22 @@ const focusAll = () => {
 
   allFocused.value = true
   allElements.forEach((el) => el.classList.add('selectedLine'))
+  document.querySelector('.cells').removeAttribute('style')
 }
 
-const focusLine = (className) => (
-  blurLines(),
-  document.querySelectorAll(className).forEach((el) => el.classList.toggle('selectedLine'))
-)
+const focusLine = (className) => {
+  const cellsArea = document.querySelector('.cells')
 
-const blurLines = () => (
-  (allFocused.value = false),
+  blurLines()
+  document.querySelectorAll(`.${className}`).forEach((el) => el.classList.toggle('selectedLine'))
+  cellsArea.style.setProperty(`--${className}-border`, `2px`)
+}
+
+const blurLines = () => {
+  allFocused.value = false
   document.querySelectorAll('.selectedLine').forEach((el) => el.classList.toggle('selectedLine'))
-)
+  document.querySelector('.cells').removeAttribute('style')
+}
 
 const focusCell = (e) => {
   e.target.setAttribute('contenteditable', true)
@@ -215,9 +224,12 @@ const resizeRow = (idx) => {
   }
 }
 
-const sortColumn = (idx) => ((sortedCol.value = idx), (sortOrder.value = 'asc'))
+const sortColumn = (idx, order) => {
+  sortedCol.value = idx
+  sortOrder.value = order
 
-const resetSort = () => ((sortedCol.value = null), (sortOrder.value = 'asc'))
+  filterData()
+}
 
 const maskString = (val, pattern) => {
   const valArr = `${val}`.split('')
@@ -247,6 +259,15 @@ const customUpdate = ({ target }, maskFn) => {
   content ? (target.textContent = maskedStr) : (target.innerHTML = `&nbsp;`)
   queueMicrotask(() => document.getSelection().collapse(target, target.childNodes.length))
 }
+
+onMounted(() => setColumnsWidths())
+
+watch(
+  () => props.colWidths,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) setColumnsWidths()
+  }
+)
 </script>
 
 <template>
@@ -266,7 +287,7 @@ const customUpdate = ({ target }, maskFn) => {
           `justify-content: var(--column-header-align, center)`
         ]"
         :key="letter"
-        @click="focusLine(`.column${idx}`)"
+        @click="focusLine(`column${idx}`)"
       >
         {{ letter }}
 
@@ -281,7 +302,7 @@ const customUpdate = ({ target }, maskFn) => {
             stroke-width="1.5"
             stroke-linecap="round"
             stroke-linejoin="round"
-            @click="sortColumn(idx)"
+            @click="sortColumn(idx, 'asc')"
           >
             <path d="M16 18L16 16M16 6L20 10.125M16 6L12 10.125M16 6L16 13" />
             <path d="M8 18L12 13.875M8 18L4 13.875M8 18L8 11M8 6V8" />
@@ -298,7 +319,7 @@ const customUpdate = ({ target }, maskFn) => {
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
-              @click="sortOrder = 'desc'"
+              @click="sortColumn(idx, 'desc')"
             >
               <path d="M4 16L13 16" />
               <path d="M6 11H13" />
@@ -316,7 +337,7 @@ const customUpdate = ({ target }, maskFn) => {
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
-              @click="resetSort"
+              @click="sortColumn(null, 'asc')"
             >
               <path d="M4 8H13" />
               <path d="M6 13H13" />
@@ -337,7 +358,7 @@ const customUpdate = ({ target }, maskFn) => {
         :class="`row${idx}`"
         :style="`height: var(--row${idx}-height, 25px)`"
         :key="row"
-        @click="focusLine(`.row${idx}`)"
+        @click="focusLine(`row${idx}`)"
       >
         {{ idx + 1 }}
 
@@ -345,7 +366,11 @@ const customUpdate = ({ target }, maskFn) => {
       </div>
     </div>
 
-    <div class="cells" @click="blurLines">
+    <div
+      class="cells"
+      @click="blurLines"
+      @keyup="(e) => (e.key === 'Delete' ? console.log(e.target) : '')"
+    >
       <div class="cell_row" v-for="(cellRow, rowIdx) in rowsArr" :key="cellRow">
         <div
           class="cell spreadsheet_elem"
@@ -468,6 +493,11 @@ const customUpdate = ({ target }, maskFn) => {
               {{ colsFormat[columnIdx](filteredData[rowIdx]?.[columnIdx]) }}
             </div>
           </template>
+
+          <div
+            class="border_line"
+            :style="`border-width: var(--row${rowIdx}-border, 0) var(--column${columnIdx}-border, 0)`"
+          ></div>
         </div>
       </div>
     </div>
@@ -529,7 +559,7 @@ const customUpdate = ({ target }, maskFn) => {
   position: relative;
   height: 25px;
   padding: 0 5px;
-  background: #e6e6e6;
+  background: #ededed;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -584,7 +614,7 @@ const customUpdate = ({ target }, maskFn) => {
 .row {
   position: relative;
   width: 40px;
-  background: #e6e6e6;
+  background: #ededed;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -629,6 +659,7 @@ const customUpdate = ({ target }, maskFn) => {
 }
 
 .cell {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -637,14 +668,26 @@ const customUpdate = ({ target }, maskFn) => {
 }
 
 .cell:focus {
-  outline: 2px solid #005eff;
-  border-radius: 1px;
+  outline: none;
+}
+
+.cell:focus::before {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  left: -1.5px;
+  right: -1.5px;
+  top: -1.5px;
+  bottom: -1.5px;
+  border: solid #005eff;
+  border-width: 2px;
+  border-radius: 2px;
   z-index: 9999;
 }
 
 [contenteditable='true'] {
   outline: 2px solid #005eff;
-  border-radius: 1px;
+  border-radius: 2px;
   z-index: 9999;
   cursor: text;
   box-shadow: rgba(0, 0, 0, 1) 2px 2px 5px;
@@ -719,10 +762,22 @@ const customUpdate = ({ target }, maskFn) => {
 
 .column.selectedLine,
 .row.selectedLine {
-  background-color: #8eb0e7;
+  background-color: #dcdcdc;
 }
 
 .cell.selectedLine {
   background-color: #e3ecfb;
+}
+
+.border_line {
+  position: absolute;
+  pointer-events: none;
+  left: -1.5px;
+  right: -1.5px;
+  top: -1.5px;
+  bottom: -1.5px;
+  border: solid #005eff;
+  border-radius: 2px;
+  z-index: 9999;
 }
 </style>

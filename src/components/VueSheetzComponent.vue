@@ -528,7 +528,7 @@ watch(
 }
 
 .corner {
-  background: #e6e6e6;
+  background: #ededed;
   position: absolute;
   top: 0;
   left: 0;

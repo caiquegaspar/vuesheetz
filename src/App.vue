@@ -1,7 +1,9 @@
 <script setup>
 import { data } from './constants'
 
-import VueSheetzComponent from './components/VueSheetzComponent.vue'
+// import { VueSheetzComponent } from '../lib/main'
+import { VueSheetzComponent } from 'vuesheetz';
+import 'vuesheetz/dist/style.css';
 </script>
 
 <template>
@@ -11,7 +13,7 @@ import VueSheetzComponent from './components/VueSheetzComponent.vue'
       height="90%"
       width="90%"
       :colSorting="true"
-      :colWidths="[140, 192, 100, 80, 60, 110, 97, 100, 126, 100]"
+      :colWidths="[140, 192, 100, 280, 60, 110, 97, 100, 126, 100]"
       :colHeaders="[
         'Company name',
         'Name',

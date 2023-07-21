@@ -9,12 +9,15 @@ hero:
   text: Versatile and feature-rich Vue component.
   tagline: Powerful spreadsheet-like interface for displaying and manipulating tabular data in web applications.
   image:
-    src: spreadsheet-vue.svg
+    src: logo.svg
     alt: VueSheetz
   actions:
     - theme: brand
       text: Get Started
       link: /guide/
+    - theme: alt
+      text: Features
+      link: /guide/features
     - theme: alt
       text: View on GitHub
       link: https://github.com/caiquegaspar/vuesheetz

@@ -1,31 +1,74 @@
 import { defineConfig } from 'vitepress'
+import { version } from '../../package.json'
+import {
+  vueSheetzName,
+  vueSheetzDescription,
+  socialMediaDescription,
+  ogUrl,
+  ogImage,
+  vueSheetzAuthor,
+  vueSheetzKeywords,
+  github,
+  releases
+} from './meta'
 
-// refer https://vitepress.vuejs.org/config/introduction for details
 export default defineConfig({
   lang: 'en-US',
-  title: 'VueSheetz',
-  description: 'A Powerful spreadsheet-like Vue component',
+  title: vueSheetzName,
+  description: vueSheetzDescription,
+
+  head: [
+    ['meta', { name: 'theme-color', content: '#059669' }],
+    ['link', { rel: 'icon', href: '/favicon.ico', sizes: 'any' }],
+    ['link', { rel: 'icon', href: '/logo.svg', type: 'image/svg+xml' }],
+    ['meta', { name: 'author', content: vueSheetzAuthor }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { name: 'keywords', content: vueSheetzKeywords }],
+    ['meta', { property: 'og:title', content: socialMediaDescription }],
+    ['meta', { property: 'og:description', content: vueSheetzDescription }],
+    ['meta', { property: 'og:url', content: ogUrl }],
+    ['meta', { property: 'og:image', content: ogImage }],
+    ['meta', { name: 'twitter:title', content: socialMediaDescription }],
+    ['meta', { name: 'twitter:description', content: vueSheetzDescription }],
+    ['meta', { name: 'twitter:image', content: ogImage }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['link', { rel: 'mask-icon', href: '/logo.svg', color: '#ffffff' }],
+    ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' }]
+  ],
+
+  lastUpdated: true,
 
   themeConfig: {
-    logo: '/spreadsheet-vue.svg',
+    logo: '/logo.svg',
+
+    editLink: {
+      pattern: 'https://github.com/caiquegaspar/vuesheetz/tree/main/docs/:path',
+      text: 'Suggest changes to this page'
+    },
 
     search: {
       provider: 'local'
     },
 
+    socialLinks: [{ icon: 'github', link: github }],
+
     nav: [
       { text: 'Guide', link: '/guide/', activeMatch: '/guide/' },
       { text: 'API', link: '/api/', activeMatch: '/api/' },
-      { text: 'Config', link: '/config/', activeMatch: '/config/' }
-
-      //   {
-      //     text: 'Dropdown Menu',
-      //     items: [
-      //       { text: 'Item A', link: '/item-1' },
-      //       { text: 'Item B', link: '/item-2' },
-      //       { text: 'Item C', link: '/item-3' }
-      //     ]
-      //   }
+      { text: 'Config', link: '/config/', activeMatch: '/config/' },
+      {
+        text: `v${version}`,
+        items: [
+          {
+            text: 'Changelog',
+            link: 'https://github.com/caiquegaspar/vuesheetz'
+          },
+          {
+            text: 'Release Notes ',
+            link: releases
+          }
+        ]
+      }
     ],
 
     sidebar: {
@@ -35,20 +78,20 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
-              text: 'What is VueSheetz?',
-              link: '/guide/why'
+              text: 'What is VueSheetz',
+              link: '/guide/what'
             },
             {
               text: 'Getting Started',
               link: '/guide/'
             },
             {
-              text: 'Demo',
-              link: '/guide/demo'
-            },
-            {
               text: 'Features',
               link: '/guide/features'
+            },
+            {
+              text: 'Demo',
+              link: '/guide/demo'
             }
           ]
         },
@@ -78,7 +121,7 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2021-PRESENT Caíque Gaspar'
+      copyright: 'Copyright © 2023-PRESENT Caíque Gaspar'
     }
   }
 })

@@ -1,9 +1,10 @@
 <script setup>
 import { data } from './constants'
 
-// import { VueSheetzComponent } from '../lib/main'
-import { VueSheetzComponent } from 'vuesheetz';
-import 'vuesheetz/dist/style.css';
+// import { VueSheetzComponent } from 'vuesheetz';
+// import 'vuesheetz/dist/style.css';
+
+import { VueSheetzComponent } from '../lib/main'
 </script>
 
 <template>

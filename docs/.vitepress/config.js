@@ -9,6 +9,7 @@ import {
   vueSheetzAuthor,
   vueSheetzKeywords,
   github,
+  changelog,
   releases
 } from './meta'
 
@@ -61,7 +62,7 @@ export default defineConfig({
         items: [
           {
             text: 'Changelog',
-            link: 'https://github.com/caiquegaspar/vuesheetz'
+            link: changelog
           },
           {
             text: 'Release Notes ',

@@ -12,4 +12,5 @@ export const vueSheetzKeywords =
 
 /* Social links */
 export const github = 'https://github.com/caiquegaspar/vuesheetz'
+export const changelog = 'https://github.com/caiquegaspar/vuesheetz/blob/main/CHANGELOG.md'
 export const releases = 'https://github.com/caiquegaspar/vuesheetz/releases'

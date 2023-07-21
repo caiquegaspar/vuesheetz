@@ -6,7 +6,7 @@ title: Getting Started
 
 ## Overview
 
-VueSheetz is a versatile and feature-rich JavaScript library that provides a powerful spreadsheet-like interface for displaying and manipulating tabular data in web applications.
+VueSheetz is a versatile and feature-rich Vue component that provides a powerful spreadsheet-like interface for displaying and manipulating tabular data in web applications.
 
 You can learn more about the project in the [What is VueSheetz](./what) section.
 

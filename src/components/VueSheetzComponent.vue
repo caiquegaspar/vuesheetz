@@ -60,7 +60,7 @@ const columnsAlignment = computed(() => {
 })
 const columnsArr = computed(() => (props.colHeaders ? props.colHeaders : alphabetCols))
 
-const initialData = structuredClone(props.data)
+const initialData = JSON.parse(JSON.stringify(props.data))
 const alpha = Array(26)
   .fill(null)
   .map((_, i) => i + 65)
@@ -569,7 +569,6 @@ watch(
   position: absolute;
   right: 5.5px;
   display: flex;
-  z-index: 9999;
   border-radius: 4px;
   overflow: hidden;
 }

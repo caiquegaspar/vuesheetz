@@ -13,7 +13,7 @@ VueSheetz is a versatile and feature-rich Vue component that provides a powerful
 
 ---
 
-## Get started with VueSheetz
+### Get started with VueSheetz
 
 ---
 
@@ -65,7 +65,7 @@ With PNPM:
 pnpm add vuesheetz
 ```
 
-> VueSheetz requires Vite >=v3.0.0 and Node >=v14.18
+> VueSheetz requires Vue >=v3.0.0 and Node >=v14.18
 
 ## Configuring VueSheetz
 
@@ -99,8 +99,6 @@ import 'vuesheetz/dist/style.css'
 Result:
 
 <img src="https://raw.githubusercontent.com/caiquegaspar/vuesheetz/main/docs/public/basic-demo.png" alt="VueSheetz basic demo preview" width="700"/>
-
-<br />
 
 See the list of config options in the [Config Reference](https://vuesheetz.pages.dev/config/)
 

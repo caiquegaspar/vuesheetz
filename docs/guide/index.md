@@ -31,7 +31,7 @@ pnpm add vuesheetz
 ```
 
 :::tip
-VueSheetz requires Vite >=v3.0.0 and Node >=v14.18
+VueSheetz requires Vue >=v3.0.0 and Node >=v14.18
 :::
 
 ## Configuring VueSheetz

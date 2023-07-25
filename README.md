@@ -17,9 +17,7 @@ VueSheetz is a versatile and feature-rich Vue component that provides a powerful
 
 ---
 
-<a href="https://vuesheetz.pages.dev/">
-  <img src="https://raw.githubusercontent.com/caiquegaspar/vuesheetz/main/docs/public/github-preview.png" alt="VueSheetz github preview" width="805"/>
-</a>
+<img src="https://raw.githubusercontent.com/caiquegaspar/vuesheetz/main/docs/public/github-preview.png" alt="VueSheetz github preview" width="805"/>
 
 </div>
 

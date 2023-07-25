@@ -21,23 +21,20 @@ hero:
     - theme: alt
       text: View on GitHub
       link: https://github.com/caiquegaspar/vuesheetz
-# features:
-#   - icon: 💡
-#     title: Instant Server Start
-#     details: On demand file serving over native ESM, no bundling required!
-#   - icon: ⚡️
-#     title: Lightning Fast HMR
-#     details: Hot Module Replacement (HMR) that stays fast regardless of app size.
-#   - icon: 🛠️
-#     title: Rich Features
-#     details: Out-of-the-box support for TypeScript, JSX, CSS and more.
-#   - icon: 📦
-#     title: Optimized Build
-#     details: Pre-configured Rollup build with multi-page and library mode support.
-#   - icon: 🔩
-#     title: Universal Plugins
-#     details: Rollup-superset plugin interface shared between dev and build.
-#   - icon: 🔑
-#     title: Fully Typed APIs
-#     details: Flexible programmatic APIs with full TypeScript typing.
+
+features:
+  - icon: 💡
+    title: Intuitive
+    details: API designed to let you write well organized tables.
+  - icon: 📦
+    title: Lightweight
+    details: VueSheetz bundle weighs ~4kb, you will forget it's even there!
+  - icon: 🛠️
+    title: Totally Configurable
+    details: Full customize your spreadsheet with props & multiple configurations.
+    link: /config/
+    linkText: Config Reference
+  - icon: 🤸‍♀️
+    title: Flexible API
+    details: Mix, match, or create your own validation methods and apply what works best per field.
 ---

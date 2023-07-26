@@ -4,7 +4,7 @@ title: Features
 
 # Features
 
-## Current and Future Features
+Here you will find the list of available features, and the ones coming soon.
 
 <FeaturesList />
 

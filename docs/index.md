@@ -28,7 +28,7 @@ features:
     details: API designed to let you write well organized tables.
   - icon: 📦
     title: Lightweight
-    details: VueSheetz bundle weighs ~4kb, you will forget it's even there!
+    details: VueSheetz bundle weighs ~4kb GZip, you will forget it's even there!
   - icon: 🛠️
     title: Totally Configurable
     details: Full customize your spreadsheet with props & multiple configurations.

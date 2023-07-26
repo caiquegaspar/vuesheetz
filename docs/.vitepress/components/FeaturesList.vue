@@ -19,7 +19,7 @@ const features = [
   { label: 'Freezing columns and rows', done: false },
   { label: 'Math formulas and string functions', done: false },
   { label: 'Hotkeys navigation', done: false },
-  { label: 'Ability to add a TimePicker', done: false },
+  { label: 'Ability to add a Datetime Picker', done: false },
   { label: 'Ability to wrap or clip long text', done: false },
   { label: 'Read-only mode', done: false },
   { label: 'Auto filling of cells', done: false },
@@ -106,7 +106,7 @@ const features = [
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  margin: 0;
+  margin: 0 0 0 5px;
 }
 
 .features_list {

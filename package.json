@@ -1,17 +1,20 @@
 {
   "name": "vuesheetz",
-  "version": "0.1.1",
+  "version": "0.1.21",
+  "description": "A Powerful spreadsheet-like Vue component.",
+  "author": "Caíque Gaspar",
+  "license": "MIT",
   "type": "module",
   "private": false,
   "files": [
     "dist"
   ],
-  "main": "./dist/vue-sheetz.cjs",
+  "main": "./dist/vue-sheetz.umd.cjs",
   "module": "./dist/vue-sheetz.js",
   "exports": {
     ".": {
       "import": "./dist/vue-sheetz.js",
-      "require": "./dist/vue-sheetz.cjs"
+      "require": "./dist/vue-sheetz.umd.cjs"
     },
     "./dist/*.css": {
       "import": "./dist/*.css",
@@ -28,6 +31,44 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caiquegaspar/vuesheetz.git"
+  },
+  "keywords": [
+    "vuesheetz",
+    "excel",
+    "spreadsheet",
+    "csv",
+    "json",
+    "vitest",
+    "vite",
+    "test",
+    "coverage",
+    "snapshot",
+    "react",
+    "vue",
+    "preact",
+    "svelte",
+    "solid",
+    "lit",
+    "ruby",
+    "cypress",
+    "puppeteer",
+    "jsdom",
+    "happy-dom",
+    "test-runner",
+    "jest",
+    "typescript",
+    "esm",
+    "tinypool",
+    "tinyspy",
+    "node"
+  ],
+  "bugs": {
+    "url": "https://github.com/caiquegaspar/vuesheetz/issues"
+  },
+  "homepage": "https://github.com/caiquegaspar/vuesheetz/blob/main/README.md",
   "dependencies": {
     "vue": "^3.3.4"
   },

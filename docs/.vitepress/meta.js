@@ -8,7 +8,7 @@ export const ogUrl = 'https://vuesheetz.pages.dev/'
 export const ogImage = `${ogUrl}og.png`
 export const vueSheetzAuthor = 'Caíque Gaspar'
 export const vueSheetzKeywords =
-  'vuesheetz, vitest, vite, test, coverage, snapshot, react, vue, preact, svelte, solid, lit, ruby, cypress, puppeteer, jsdom, happy-dom, test-runner, jest, typescript, esm, tinypool, tinyspy, node'
+  'vuesheetz, excel, spreadsheet, csv, json, vitest, vite, test, coverage, snapshot, react, vue, preact, svelte, solid, lit, ruby, cypress, puppeteer, jsdom, happy-dom, test-runner, jest, typescript, esm, tinypool, tinyspy, node'
 
 /* Social links */
 export const github = 'https://github.com/caiquegaspar/vuesheetz'

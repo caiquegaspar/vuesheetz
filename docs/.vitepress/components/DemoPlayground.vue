@@ -89,9 +89,10 @@ const formParams = ref(defaultParams)
 
 <style scoped>
 .controller_btns {
-  width: 100%;
-  display: flex;
-  gap: 15px;
+  display: grid;
+  gap: .5rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   margin: 20px 0;
+  touch-action: none;
 }
 </style>

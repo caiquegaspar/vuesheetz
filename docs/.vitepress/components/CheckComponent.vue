@@ -24,6 +24,7 @@ defineEmits(['update:modelValue'])
   gap: 0.5rem;
   align-items: center;
   white-space: nowrap;
+  user-select: none;
 }
 
 .form_checkbox {

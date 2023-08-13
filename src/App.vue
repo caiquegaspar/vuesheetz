@@ -1,5 +1,5 @@
 <script setup>
-import { data } from './constants'
+import data from '../docs/.vitepress/demo-data'
 
 // import { VueSheetzComponent } from 'vuesheetz';
 // import 'vuesheetz/dist/style.css';

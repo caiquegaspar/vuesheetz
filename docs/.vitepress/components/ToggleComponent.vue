@@ -1,10 +1,10 @@
 <script setup>
-defineProps({ modelValue: Boolean })
+defineProps({ modelValue: Boolean, disabled: Boolean })
 defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <div class="form_toggle">
+  <div class="form_toggle" :class="{ disabled }">
     <div class="toggle_button">
       <input
         type="checkbox"
@@ -12,6 +12,7 @@ defineEmits(['update:modelValue'])
         :checked="modelValue"
         @click="$emit('update:modelValue', !modelValue)"
       />
+      
       <div class="toggle_knobs"></div>
       <div class="toggle_layer"></div>
     </div>
@@ -28,6 +29,16 @@ defineEmits(['update:modelValue'])
   gap: 0.5rem;
   align-items: center;
   white-space: nowrap;
+  user-select: none;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disabled * {
+  pointer-events: none;
 }
 
 .toggle_button {

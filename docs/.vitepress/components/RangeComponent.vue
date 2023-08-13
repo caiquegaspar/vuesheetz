@@ -2,13 +2,14 @@
 const props = defineProps({
   modelValue: Number,
   min: Number,
-  max: Number
+  max: Number,
+  disabled: Boolean
 })
 defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <div class="form_range">
+  <div class="form_range" :class="{ disabled }">
     <input
       type="range"
       :value="modelValue"
@@ -17,9 +18,10 @@ defineEmits(['update:modelValue'])
       class="form_slider"
       @input="$emit('update:modelValue', $event.target.value)"
     />
-    <span class="form_output">
+    
+    <div class="form_output">
       <slot name="label" v-bind="props"> {{ modelValue }} </slot>
-    </span>
+    </div>
   </div>
 </template>
 
@@ -29,6 +31,16 @@ defineEmits(['update:modelValue'])
   align-items: center;
   gap: 0.5rem;
   white-space: nowrap;
+  user-select: none;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disabled * {
+  pointer-events: none;
 }
 
 input[type='range'] {

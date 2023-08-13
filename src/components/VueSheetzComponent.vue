@@ -580,7 +580,7 @@ watch(
 .column_resizer {
   position: absolute;
   right: -3.5px;
-  z-index: 9999;
+  z-index: 99;
   width: 6px;
   height: 100%;
   background-color: transparent;
@@ -681,7 +681,7 @@ watch(
   border: solid #005eff;
   border-width: 2px;
   border-radius: 2px;
-  z-index: 9999;
+  z-index: 99;
 }
 
 [contenteditable='true'] {
@@ -777,6 +777,6 @@ watch(
   bottom: -1.5px;
   border: solid #005eff;
   border-radius: 2px;
-  z-index: 9999;
+  z-index: 99;
 }
 </style>

@@ -5,6 +5,9 @@ import data from '../demo-data'
 
 import RangeComponent from './RangeComponent.vue'
 import ToggleComponent from './ToggleComponent.vue'
+import SelectComponent from './SelectComponent.vue'
+import InputComponent from './InputComponent.vue'
+import NumberComponent from './NumberComponent.vue'
 
 const defaultParams = {
   data: data,
@@ -53,17 +56,16 @@ const defaultParams = {
       })
   ]
 }
+const alignmentOptions = ['left', 'center', 'right']
+const formatOptions = ['text', 'check', 'progress', 'rating', 'currency']
 
-const formParams = ref(defaultParams)
+const formParams = ref({ ...defaultParams })
+const headerIdx = ref(null)
 </script>
 
 <template>
   <div>
-    <form class="controller_btns">
-      <ToggleComponent v-model="formParams.colSorting">
-        <template #label> Column Sorting </template>
-      </ToggleComponent>
-
+    <form class="spreadsheet_controls">
       <RangeComponent
         :modelValue="parseFloat(formParams.width)"
         @update:modelValue="(newValue) => (formParams.width = `${newValue}%`)"
@@ -81,18 +83,81 @@ const formParams = ref(defaultParams)
       >
         <template #label="{ modelValue }"> Height {{ parseFloat(modelValue) }}px </template>
       </RangeComponent>
+
+      <ToggleComponent v-model="formParams.colSorting">
+        <template #label> Column Sorting </template>
+      </ToggleComponent>
+
+      <ToggleComponent
+        :modelValue="!!formParams.colHeaders"
+        @update:modelValue="
+          () =>
+            formParams.colHeaders
+              ? (formParams.colHeaders = null)
+              : (formParams.colHeaders = defaultParams.colHeaders)
+        "
+      >
+        <template #label> Column Headers </template>
+      </ToggleComponent>
+
+      <SelectComponent
+        v-model="headerIdx"
+        :options="formParams.colHeaders"
+        label="Select a column"
+        :disabled="!formParams.colHeaders"
+      />
     </form>
+
+    <div>Header Configuration:</div>
+
+    <form class="header_controls">
+      <InputComponent v-model="formParams.colHeaders[headerIdx]" :disabled="headerIdx === null" />
+
+      <NumberComponent
+        v-model="formParams.colWidths[headerIdx]"
+        :min="0"
+        :max="200"
+        label="Header width"
+        :disabled="headerIdx === null"
+      />
+
+      <SelectComponent
+        v-model="headerIdx"
+        :options="alignmentOptions"
+        label="Alignment"
+        floatLabel
+        :disabled="headerIdx === null"
+      />
+
+      <SelectComponent
+        v-model="headerIdx"
+        :options="formatOptions"
+        label="Format"
+        floatLabel
+        :disabled="headerIdx === null"
+      />
+    </form>
+    <!-- {{ formParams.colWidths }}
+    {{ headerIdx }} -->
 
     <VueSheetzComponent v-bind="formParams" />
   </div>
 </template>
 
 <style scoped>
-.controller_btns {
+.spreadsheet_controls {
   display: grid;
-  gap: .5rem;
+  gap: 0.5rem;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   margin: 20px 0;
+  touch-action: none;
+}
+
+.header_controls {
+  display: grid;
+  gap: 1.9rem 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  margin: 30px 0 20px;
   touch-action: none;
 }
 </style>

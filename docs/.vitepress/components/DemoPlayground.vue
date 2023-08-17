@@ -41,14 +41,14 @@ const defaultParams = {
   ],
   colsFormat: [
     'text',
-    ,
+    'text',
     '##/##/####',
     'check',
-    ,
+    'text',
     'progress',
     'rating',
-    ,
-    ,
+    'text',
+    'text',
     (val) =>
       Number(val).toLocaleString('pt-BR', {
         style: 'currency',
@@ -57,7 +57,20 @@ const defaultParams = {
   ]
 }
 const alignmentOptions = ['left', 'center', 'right']
-const formatOptions = ['text', 'check', 'progress', 'rating', 'currency']
+const formatOptions = [
+  { label: 'text', value: 'text' },
+  { label: 'check', value: 'check' },
+  { label: 'progress', value: 'progress' },
+  { label: 'rating', value: 'rating' },
+  {
+    label: 'currency',
+    value: (val) =>
+      Number(val).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      })
+  }
+]
 
 const formParams = ref({ ...defaultParams })
 const headerIdx = ref(null)
@@ -88,6 +101,7 @@ const headerIdx = ref(null)
         <template #label> Column Sorting </template>
       </ToggleComponent>
 
+      <!-- FIXME: fix: "Cannot read properties of null (reading 'null')" when switch toggle -->
       <ToggleComponent
         :modelValue="!!formParams.colHeaders"
         @update:modelValue="
@@ -97,32 +111,35 @@ const headerIdx = ref(null)
               : (formParams.colHeaders = defaultParams.colHeaders)
         "
       >
-        <template #label> Column Headers </template>
+        <template #label> Custom Columns </template>
       </ToggleComponent>
 
       <SelectComponent
-        v-model="headerIdx"
+        :modelValue="formParams.colHeaders[headerIdx]"
+        @update:modelValue="(_, idx) => (headerIdx = idx)"
         :options="formParams.colHeaders"
         label="Select a column"
         :disabled="!formParams.colHeaders"
       />
     </form>
 
-    <div>Header Configuration:</div>
+    <div>Column Configuration:</div>
 
     <form class="header_controls">
       <InputComponent v-model="formParams.colHeaders[headerIdx]" :disabled="headerIdx === null" />
 
+      <!-- FIXME: fix: column width not reactive -->
       <NumberComponent
         v-model="formParams.colWidths[headerIdx]"
         :min="0"
         :max="200"
-        label="Header width"
+        label="Column width"
         :disabled="headerIdx === null"
       />
 
       <SelectComponent
-        v-model="headerIdx"
+        :modelValue="formParams.colsAlignment[headerIdx]"
+        @update:modelValue="(alignment) => (formParams.colsAlignment[headerIdx] = alignment)"
         :options="alignmentOptions"
         label="Alignment"
         floatLabel
@@ -130,15 +147,18 @@ const headerIdx = ref(null)
       />
 
       <SelectComponent
-        v-model="headerIdx"
+        :modelValue="formParams.colsFormat[headerIdx]"
+        @update:modelValue="(format) => (formParams.colsFormat[headerIdx] = format.value)"
         :options="formatOptions"
         label="Format"
         floatLabel
         :disabled="headerIdx === null"
-      />
+      >
+        <template #label="modelValue">
+          {{ typeof modelValue.label === 'function' ? 'currency' : modelValue.label }}
+        </template>
+      </SelectComponent>
     </form>
-    <!-- {{ formParams.colWidths }}
-    {{ headerIdx }} -->
 
     <VueSheetzComponent v-bind="formParams" />
   </div>

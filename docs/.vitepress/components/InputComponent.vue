@@ -14,7 +14,7 @@ defineEmits(['update:modelValue'])
         @input="$emit('update:modelValue', $event.target.value)"
       />
 
-      <span class="input_placeholder"> Header Name </span>
+      <span class="input_placeholder"> Column Name </span>
 
       <span class="focus_border"></span>
     </label>

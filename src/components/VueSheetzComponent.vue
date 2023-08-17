@@ -596,7 +596,7 @@ watch(
   position: absolute;
   width: 2px;
   height: 100%;
-  z-index: 9999;
+  z-index: 99;
   background-color: #005eff;
   opacity: 0;
 }
@@ -639,7 +639,7 @@ watch(
   position: absolute;
   width: 100%;
   height: 2px;
-  z-index: 9999;
+  z-index: 99;
   background-color: #005eff;
   opacity: 0;
 }

@@ -1,8 +1,6 @@
 <script setup>
-import { ref } from 'vue'
-
-const props = defineProps({
-  modelValue: Number,
+defineProps({
+  modelValue: [Number, String, Object, Function],
   options: Array,
   label: String,
   floatLabel: Boolean,
@@ -10,11 +8,7 @@ const props = defineProps({
 })
 const emits = defineEmits(['update:modelValue'])
 
-const selectedOption = ref()
-
-const selectOption = (idx) => (
-  (selectedOption.value = props.options[idx]), emits('update:modelValue', idx)
-)
+const selectOption = (option, idx) => emits('update:modelValue', option, idx)
 </script>
 
 <template>
@@ -24,14 +18,18 @@ const selectOption = (idx) => (
 
       <div class="select_label">
         <template v-if="floatLabel">
-          <span :class="{ float_label: !!selectedOption }">
+          <span :class="{ float_label: !!modelValue }">
             {{ label || 'Select an option' }}
           </span>
 
-          <span>{{ selectedOption }}</span>
+          <span>
+            <slot name="label" :label="modelValue"> {{ modelValue?.label || modelValue }} </slot>
+          </span>
         </template>
 
-        <span class="select_label" v-else>{{ selectedOption || label || 'Select an option' }}</span>
+        <span class="select_label" v-else>
+          {{ modelValue?.label || modelValue || label || 'Select an option' }}
+        </span>
       </div>
 
       <ul class="select_options">
@@ -39,9 +37,9 @@ const selectOption = (idx) => (
           class="select_option"
           v-for="(option, idx) in options"
           :key="option"
-          @click="selectOption(idx)"
+          @click="selectOption(option, idx)"
         >
-          {{ option }}
+          {{ option.label || option }}
         </li>
       </ul>
 
@@ -58,7 +56,6 @@ const selectOption = (idx) => (
 
 <style scoped>
 .form_select {
-  user-select: none;
   white-space: nowrap;
   user-select: none;
 }

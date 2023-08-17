@@ -7,11 +7,18 @@ defineProps({
   disabled: Boolean
 })
 defineEmits(['update:modelValue'])
+
+const useRange = (value, minLimiter, maxLimiter) => {
+  const parsed = parseInt(value)
+  const range = Math.min(Math.max(parsed, minLimiter), maxLimiter)
+
+  return range
+}
 </script>
 
 <template>
   <div class="form_number" :class="{ disabled }">
-    <div class="number_btn">
+    <div class="number_btn" @click="$emit('update:modelValue', useRange(modelValue - 1, min, max))">
       <svg width="20" viewBox="0 0 24 24" fill="none">
         <path
           d="M6 12L18 12"
@@ -34,7 +41,7 @@ defineEmits(['update:modelValue'])
       />
     </div>
 
-    <div class="number_btn">
+    <div class="number_btn" @click="$emit('update:modelValue', useRange(modelValue + 1, min, max))">
       <svg width="20" viewBox="0 0 24 24" fill="none">
         <path
           d="M4 12H20M12 4V20"
@@ -97,6 +104,7 @@ defineEmits(['update:modelValue'])
 .number_input input {
   font-size: 1rem;
   text-align: center;
+  width: 100%;
 }
 
 .number_input input:focus {

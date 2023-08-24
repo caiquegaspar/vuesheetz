@@ -72,8 +72,26 @@ const formatOptions = [
   }
 ]
 
-const formParams = ref({ ...defaultParams })
+const formParams = ref(deepClone(defaultParams))
 const headerIdx = ref(null)
+const columnName = ref(null)
+
+function deepClone(val) {
+  return JSON.parse(JSON.stringify(val))
+}
+
+const toggleColConfig = () => {
+  if (formParams.value.colHeaders) {
+    formParams.value.colHeaders = null
+    headerIdx.value = null
+
+    queueMicrotask(() => columnName.value.resetValidation())
+
+    return
+  }
+
+  formParams.value.colHeaders = deepClone(defaultParams.colHeaders)
+}
 </script>
 
 <template>
@@ -101,21 +119,12 @@ const headerIdx = ref(null)
         <template #label> Column Sorting </template>
       </ToggleComponent>
 
-      <!-- FIXME: fix: "Cannot read properties of null (reading 'null')" when switch toggle -->
-      <ToggleComponent
-        :modelValue="!!formParams.colHeaders"
-        @update:modelValue="
-          () =>
-            formParams.colHeaders
-              ? (formParams.colHeaders = null)
-              : (formParams.colHeaders = defaultParams.colHeaders)
-        "
-      >
+      <ToggleComponent :modelValue="!!formParams.colHeaders" @update:modelValue="toggleColConfig">
         <template #label> Custom Columns </template>
       </ToggleComponent>
 
       <SelectComponent
-        :modelValue="formParams.colHeaders[headerIdx]"
+        :modelValue="formParams.colHeaders?.[headerIdx]"
         @update:modelValue="(_, idx) => (headerIdx = idx)"
         :options="formParams.colHeaders"
         label="Select a column"
@@ -126,9 +135,19 @@ const headerIdx = ref(null)
     <div>Column Configuration:</div>
 
     <form class="header_controls">
-      <InputComponent v-model="formParams.colHeaders[headerIdx]" :disabled="headerIdx === null" />
+      <InputComponent
+        :modelValue="formParams.colHeaders?.[headerIdx]"
+        @update:modelValue="(val) => (formParams.colHeaders[headerIdx] = val)"
+        ref="columnName"
+        label="Column Name"
+        :disabled="headerIdx === null"
+        :rules="[(val) => !!val || 'Field is required']"
+        @onBlurError="
+          () => (formParams.colHeaders[headerIdx] = defaultParams.colHeaders[headerIdx])
+        "
+      />
 
-      <!-- FIXME: fix: column width not reactive -->
+      <!-- FIXME: column width not reactive -->
       <NumberComponent
         v-model="formParams.colWidths[headerIdx]"
         :min="0"
@@ -138,8 +157,7 @@ const headerIdx = ref(null)
       />
 
       <SelectComponent
-        :modelValue="formParams.colsAlignment[headerIdx]"
-        @update:modelValue="(alignment) => (formParams.colsAlignment[headerIdx] = alignment)"
+        v-model="formParams.colsAlignment[headerIdx]"
         :options="alignmentOptions"
         label="Alignment"
         floatLabel
@@ -169,7 +187,7 @@ const headerIdx = ref(null)
   display: grid;
   gap: 0.5rem;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  margin: 20px 0;
+  margin: 30px 0;
   touch-action: none;
 }
 
@@ -177,7 +195,7 @@ const headerIdx = ref(null)
   display: grid;
   gap: 1.9rem 0.5rem;
   grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-  margin: 30px 0 20px;
+  margin: 30px 0;
   touch-action: none;
 }
 </style>

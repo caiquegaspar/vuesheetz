@@ -1,20 +1,66 @@
 <script setup>
-defineProps({ modelValue: String, disabled: Boolean })
-defineEmits(['update:modelValue'])
+import { ref, watch } from 'vue'
+
+const props = defineProps({ modelValue: String, label: String, rules: Array, disabled: Boolean })
+const emits = defineEmits(['update:modelValue', 'onError', 'onBlurError'])
+
+const inputError = ref(false)
+const errorMsg = ref('')
+
+const validateRules = (val, onError) => {
+  const rulesArr = props.rules.map((rule) => rule(val))
+  const found = rulesArr.find((item) => typeof item !== 'boolean')
+
+  if (found) {
+    errorMsg.value = found
+    inputError.value = true
+
+    if (onError) onError()
+
+    return
+  }
+
+  inputError.value = false
+}
+
+const resetValidation = () => {
+  inputError.value = false
+  errorMsg.value = ''
+}
+
+const updateValue = ({ target: { value } }) => (
+  validateRules(value, () => emits('onError')), emits('update:modelValue', value)
+)
+
+const blurInput = ({ target: { value } }) => {
+  validateRules(value)
+
+  if (inputError.value) emits('onBlurError')
+}
+
+watch(
+  () => props.modelValue,
+  (newVal) => validateRules(newVal)
+)
+
+defineExpose({ resetValidation })
 </script>
 
 <template>
-  <div class="form_input" :class="{ disabled }">
+  <div :class="['form_input', { disabled, input_error: inputError }]">
     <label class="input">
       <input
         class="input_area"
         type="text"
         :value="modelValue"
         required
-        @input="$emit('update:modelValue', $event.target.value)"
+        @input="updateValue"
+        @blur="blurInput"
       />
 
-      <span class="input_placeholder"> Column Name </span>
+      <span class="input_placeholder"> {{ label }} </span>
+
+      <span :class="['input_warning', { active_warning: inputError }]"> {{ errorMsg }} </span>
 
       <span class="focus_border"></span>
     </label>
@@ -43,6 +89,10 @@ defineEmits(['update:modelValue'])
   pointer-events: none;
 }
 
+.input_error {
+  color: #c10015;
+}
+
 .input {
   position: relative;
   width: 100%;
@@ -53,7 +103,7 @@ defineEmits(['update:modelValue'])
   width: 100%;
   font-size: 1rem;
   border: 0;
-  padding: 0 0 .3rem;
+  padding: 0 0 0.3rem;
   border-bottom: 1px solid currentColor;
 }
 
@@ -74,8 +124,23 @@ defineEmits(['update:modelValue'])
   left: 0;
   width: 0;
   height: 2px;
-  background-color: #2095f3;
   transition: all 0.4s;
+}
+
+.input_warning {
+  position: absolute;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0.1rem;
+  opacity: 0;
+  font-size: 0.8rem;
+  transition: all 0.3s;
+}
+
+.active_warning {
+  transform: translateY(60%);
+  opacity: 1;
 }
 
 .input_area:focus ~ .input_placeholder {

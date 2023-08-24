@@ -17,7 +17,7 @@ const useRange = (value, minLimiter, maxLimiter) => {
 </script>
 
 <template>
-  <div class="form_number" :class="{ disabled }">
+  <div :class="['form_number', { disabled }]">
     <div class="number_btn" @click="$emit('update:modelValue', useRange(modelValue - 1, min, max))">
       <svg width="20" viewBox="0 0 24 24" fill="none">
         <path

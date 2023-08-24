@@ -4,7 +4,7 @@ defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <div class="form_toggle" :class="{ disabled }">
+  <div :class="['form_toggle', { disabled }]">
     <div class="toggle_button">
       <input
         type="checkbox"

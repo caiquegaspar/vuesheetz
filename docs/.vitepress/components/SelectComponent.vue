@@ -12,7 +12,7 @@ const selectOption = (option, idx) => emits('update:modelValue', option, idx)
 </script>
 
 <template>
-  <div class="form_select" :class="{ disabled }">
+  <div :class="['form_select', { disabled }]">
     <label class="select">
       <input v-if="!disabled" class="select_input" type="checkbox" />
 

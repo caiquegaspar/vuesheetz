@@ -9,7 +9,7 @@ defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <div class="form_range" :class="{ disabled }">
+  <div :class="['form_range', { disabled }]">
     <input
       type="range"
       :value="modelValue"

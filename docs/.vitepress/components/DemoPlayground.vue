@@ -147,7 +147,6 @@ const toggleColConfig = () => {
         "
       />
 
-      <!-- FIXME: column width not reactive -->
       <NumberComponent
         v-model="formParams.colWidths[headerIdx]"
         :min="0"

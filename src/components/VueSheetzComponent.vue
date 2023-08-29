@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   data: {
@@ -45,6 +45,15 @@ const sheetWidth = computed(() => {
 
   return hasUnit ? width : `${width}px`
 })
+const columnsWidths = computed(() => {
+  let widthsStr = ''
+
+  for (const [key, val] of Object.entries(widthsObj.value)) {
+    widthsStr += `${key}: ${val}`
+  }
+
+  return widthsStr
+})
 const columnsAlignment = computed(() => {
   let styles = ''
   const alignVals = { left: 'start', center: 'center', right: 'end' }
@@ -60,7 +69,7 @@ const columnsAlignment = computed(() => {
 })
 const columnsArr = computed(() => (props.colHeaders ? props.colHeaders : alphabetCols))
 
-const initialData = JSON.parse(JSON.stringify(props.data))
+const initialData = deepClone(props.data)
 const alpha = Array(26)
   .fill(null)
   .map((_, i) => i + 65)
@@ -78,25 +87,25 @@ const alphabetCols = Array(colSize)
   }, [])
 
 const rowsArr = ref(Math.max(props.data.length, 100))
+const widthsObj = ref({})
 const allFocused = ref(false)
 const allowResize = ref(false)
 const sortedCol = ref(null)
 const sortOrder = ref('asc')
-const columnsWidths = ref('')
-const filteredData = ref(initialData)
+const filteredData = ref(deepClone(initialData))
 
-const setColumnsWidths = () => {
+function deepClone(val) {
+  return JSON.parse(JSON.stringify(val))
+}
+
+const setSheetConfigs = () => {
   if (props.colWidths)
-    props.colWidths.forEach((item, idx) =>
-      document
-        .querySelector('.spreadsheet_content')
-        .style.setProperty(`--column${idx}-width`, `${item}px`)
-    )
+    props.colWidths.forEach((item, idx) => (widthsObj.value[`--column${idx}-width`] = `${item}px;`))
 }
 
 const filterData = () => {
   if (sortedCol.value !== null)
-    return (filteredData.value = structuredClone(initialData).sort((a, b) => {
+    return (filteredData.value = deepClone(initialData).sort((a, b) => {
       const sortCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
       const colNum = sortedCol.value
       const ascendingOrder = sortOrder.value === 'asc'
@@ -184,7 +193,9 @@ const resizeColumn = (idx) => {
   }
 
   window.onpointerup = () => {
-    if (finalWidth) rootElem.style.setProperty(`--column${idx}-width`, `${finalWidth}px`)
+    if (!allowResize.value) return
+
+    if (finalWidth) widthsObj.value[`--column${idx}-width`] = `${finalWidth}px;`
 
     columnLine.style.left = '0'
     columnLine.style.opacity = '0'
@@ -215,6 +226,8 @@ const resizeRow = (idx) => {
   }
 
   window.onpointerup = () => {
+    if (!allowResize.value) return
+
     if (finalHeight) rootElem.style.setProperty(`--row${idx}-height`, `${finalHeight}px`)
 
     rowLine.style.top = '0'
@@ -260,14 +273,7 @@ const customUpdate = ({ target }, maskFn) => {
   queueMicrotask(() => document.getSelection().collapse(target, target.childNodes.length))
 }
 
-onMounted(() => setColumnsWidths())
-
-watch(
-  () => props.colWidths,
-  (newVal, oldVal) => {
-    if (newVal !== oldVal) setColumnsWidths()
-  }
-)
+watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
 </script>
 
 <template>

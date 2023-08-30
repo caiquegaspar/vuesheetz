@@ -68,6 +68,15 @@ const columnsAlignment = computed(() => {
   return styles
 })
 const columnsArr = computed(() => (props.colHeaders ? props.colHeaders : alphabetCols))
+const rowsHeights = computed(() => {
+  let heightsStr = ''
+
+  for (const [key, val] of Object.entries(heightsObj.value)) {
+    heightsStr += `${key}: ${val}`
+  }
+
+  return heightsStr
+})
 
 const initialData = deepClone(props.data)
 const alpha = Array(26)
@@ -88,6 +97,7 @@ const alphabetCols = Array(colSize)
 
 const rowsArr = ref(Math.max(props.data.length, 100))
 const widthsObj = ref({})
+const heightsObj = ref({})
 const allFocused = ref(false)
 const allowResize = ref(false)
 const sortedCol = ref(null)
@@ -132,6 +142,7 @@ const progressColor = (percentage) => {
 const ratingFunc = (stars) =>
   [...Array(5).fill(true), ...Array(5).fill(false)].slice(5 - stars, 10 - stars)
 
+// TODO: change cell focus process from "setProperty" to focus based on variable mutation
 const focusAll = () => {
   const allElements = document.querySelectorAll('.spreadsheet_elem')
 
@@ -228,7 +239,7 @@ const resizeRow = (idx) => {
   window.onpointerup = () => {
     if (!allowResize.value) return
 
-    if (finalHeight) rootElem.style.setProperty(`--row${idx}-height`, `${finalHeight}px`)
+    if (finalHeight) heightsObj.value[`--row${idx}-height`] = `${finalHeight}px;`
 
     rowLine.style.top = '0'
     rowLine.style.opacity = '0'
@@ -279,7 +290,13 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
 <template>
   <div
     class="spreadsheet_content"
-    :style="[`height: ${sheetHeight}`, `width: ${sheetWidth}`, columnsWidths, columnsAlignment]"
+    :style="[
+      `height: ${sheetHeight}`,
+      `width: ${sheetWidth}`,
+      columnsWidths,
+      columnsAlignment,
+      rowsHeights
+    ]"
   >
     <div class="corner" @click="focusAll"></div>
 
@@ -506,10 +523,10 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
           ></div>
         </div>
       </div>
-    </div>
 
-    <div class="column_line"></div>
-    <div class="row_line"></div>
+      <div class="column_line"></div>
+      <div class="row_line"></div>
+    </div>
   </div>
 </template>
 
@@ -534,13 +551,16 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
 }
 
 .corner {
-  background: #ededed;
-  position: absolute;
+  position: sticky;
   top: 0;
   left: 0;
   width: 40px;
   height: 25px;
+  background: #ededed;
+  border-right: 1.5px solid #cdcdcd;
+  border-bottom: 1.5px solid #cdcdcd;
   cursor: pointer;
+  z-index: 3;
 }
 
 .corner:after {
@@ -554,20 +574,24 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
 }
 
 .columns {
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 41px;
-  display: flex;
-  gap: 1px;
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: start;
+  margin: -25px 0 0 40px;
+  z-index: 2;
 }
 
 .column {
   position: relative;
+  display: flex;
+  align-items: center;
   height: 25px;
   padding: 0 5px;
   background: #ededed;
-  display: flex;
-  align-items: center;
+  border-right: 1.5px solid #cdcdcd;
+  border-bottom: 1.5px solid #cdcdcd;
   cursor: pointer;
 }
 
@@ -586,7 +610,7 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
 .column_resizer {
   position: absolute;
   right: -3.5px;
-  z-index: 99;
+  z-index: 1;
   width: 6px;
   height: 100%;
   background-color: transparent;
@@ -600,36 +624,38 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
 
 .column_line {
   position: absolute;
+  top: -100%;
+  transform: translateX(-40px);
   width: 2px;
-  height: 100%;
-  z-index: 99;
+  height: 200%;
   background-color: #005eff;
   opacity: 0;
+  z-index: 3;
 }
 
 .rows {
-  position: absolute;
-  top: 26px;
+  position: sticky;
+  display: grid;
   left: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+  width: 40px;
+  z-index: 2;
 }
 
 .row {
   position: relative;
-  width: 40px;
-  background: #ededed;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #ededed;
+  border-right: 1.5px solid #cdcdcd;
+  border-bottom: 1.5px solid #cdcdcd;
   cursor: pointer;
 }
 
 .row_resizer {
   position: absolute;
   bottom: -3.5px;
-  z-index: 9999;
+  z-index: 1;
   width: 100%;
   height: 6px;
   background-color: transparent;
@@ -643,24 +669,25 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
 
 .row_line {
   position: absolute;
-  width: 100%;
+  left: -100%;
+  transform: translateY(-25px);
+  width: 200%;
   height: 2px;
-  z-index: 99;
   background-color: #005eff;
   opacity: 0;
+  z-index: 3;
 }
 
 .cells {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  margin: 26px 0 0 41px;
+  top: 0;
+  margin: 25px 0 0 40px;
 }
 
 .cell_row {
-  display: flex;
-  gap: 1px;
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: start;
 }
 
 .cell {
@@ -669,6 +696,8 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
   justify-content: center;
   align-items: center;
   background: #fff;
+  border-bottom: 1.5px solid #cdcdcd;
+  border-right: 1.5px solid #cdcdcd;
   cursor: cell;
 }
 
@@ -687,13 +716,13 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
   border: solid #005eff;
   border-width: 2px;
   border-radius: 2px;
-  z-index: 99;
+  z-index: 1;
 }
 
 [contenteditable='true'] {
   outline: 2px solid #005eff;
   border-radius: 2px;
-  z-index: 9999;
+  z-index: 2;
   cursor: text;
   box-shadow: rgba(0, 0, 0, 1) 2px 2px 5px;
 }
@@ -783,6 +812,6 @@ watch(() => props.colWidths, setSheetConfigs, { deep: true, immediate: true })
   bottom: -1.5px;
   border: solid #005eff;
   border-radius: 2px;
-  z-index: 99;
+  z-index: 1;
 }
 </style>
